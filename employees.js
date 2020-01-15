@@ -23,7 +23,7 @@ function userPrompt(){
             name: "start",
             message: "what would you like to do?",
             choices: ["view all employees", "view all employees by manager","add employee", 
-            "update employee", "remove employee", "update employee role", "update employee manager"]
+            "update employee", "remove employee", "add department"]
         }
     ]).then(function(res){
         if (res.start === "view all employees"){
@@ -41,8 +41,12 @@ function userPrompt(){
         else if (res.start === "remove employee"){
             removeEmployee();
         }
-    })
-}
+        else if (res.start === "add department"){
+            addDepartment();
+        }
+        
+    });
+};
 
 function allEmployees(){
     connection.query("SELECT * FROM employee", function(err, res){
@@ -50,8 +54,8 @@ function allEmployees(){
             console.log(err)
         }
         console.table(res)
-    })
-}
+    });
+};
 
 function EmployeeByManagers(){
     connection.query(`SELECT e.first_name employeeFirst, e.last_name employeeLast,
@@ -67,12 +71,6 @@ function EmployeeByManagers(){
 
 function addEmployee(){
     inquirer.prompt([
-        {
-            type: "list",
-            message: "has manager?",
-            choices: ["yes", "no"],
-            name: "manager"
-        },
         {
             type: "input",
             message: "role title?",
@@ -100,15 +98,10 @@ function addEmployee(){
             }
             addEmp(role,res);
         })
-    
-        // var department = res.department;
-        // addDepartment(department)
     })
 };
 
-
-
-// function addRole(role,res){
+// function findDepartment(role,res){
 //     connection.query("SELECT r_id, name, department_id FROM role INNER JOIN department ON department_id = dep_id WHERE ?",
 //     {
 //         r_id: role
@@ -121,53 +114,10 @@ function addEmployee(){
 // }
 
 function addEmp(role,res){
-    // if (res.manager === "yes"){
-        console.log(role + " role id")
-    //     inquirer.prompt([
-    //         {
-    //             type: "input",
-    //             message: "manager's last name?",
-    //             name: "managerLast"
-    //         }
-    //     ]).then(function(response){
-    //         connection.query("SELECT manager_id FROM employee WHERE ?",
-    //         {
-    //             last_name: response.managerLast
-    //         },
-    //         function(err, data){
-    //             if (err) throw err;
-    //             var manager = data[0].manager_id;
-    //         }
-    //         )
 
-    //     }).then(function(manager){
-    //         connection.query("INSERT INTO employee SET ?", 
-    //         [
-    //             {
-    //                 first_name: res.firstName
-    //             },
-    //             {
-    //                 last_name: res.lastName
-    //             },
-    //             {
-    //                 role_id: role
-    //             },
-    //             {
-    //                 manager_id: manager
-    //             },
-    //             ],
-    //             function(err){
-    //                 if (err) throw err;
-    //                 console.log("successfully added " + res.firstName + " " + res.lastName + "with a role id of " + role + 
-    //                 " and amanager id of " + manager);
-    //             }
-    //         )
-    //     })
-    // }
-    
     connection.query("INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)", 
     [res.firstName, res.lastName, role],
-    function(err,data){
+    function(err){
         if (err) throw err;
         console.log("successfully added employee!")
     });
@@ -244,19 +194,25 @@ function removeEmployee(){
         })
     })
 };
-// function addDepartment(department){
-//     connection.query("SELECT * FROM department", function(data){
-//         console.log(data)
-//     })
-//     connection.query("INSERT INTO department SET ?",
-//     {
-//         name: department
-//     },
-//     function(err, data){
-//         if (err){
-//             console.log(err)
-//         }
-//         console.log("you added a department")
-//     }
-//     )
-// }
+
+function addDepartment(){
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "department",
+            message: "department name?"
+        }
+    ]).then(function(response){
+
+    connection.query("INSERT INTO department SET ?",
+    {
+        name: JSON.stringify(response.department)
+    },
+    function(err){
+        if (err){
+            console.log(err)
+        }
+        console.log("you added a department")
+    })
+    });
+}
