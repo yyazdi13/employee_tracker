@@ -65,10 +65,11 @@ function allEmployees(){
 }
 
 function EmployeeByManagers(){
-    connection.query(`SELECT e.first_name employeeFirst, e.last_name employeeLast,
-                            m.first_name managerFirst, m.last_name managerLast
+    var thisManager = 'Employee First Name';
+    connection.query(`SELECT m.first_name EmployeeFirstName, m.last_name EmployeeLastName,
+                            e.first_name ManagerFirstName, e.last_name ManagerLastName
                     FROM employee e
-                    LEFT JOIN employee m ON m.manager_id = e.emp_id`, function(err, res){
+                    INNER JOIN employee m ON m.manager_id = e.emp_id`, function(err, res){
         if (err){
             console.log(err);
         }
