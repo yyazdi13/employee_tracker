@@ -16,6 +16,12 @@ connection.connect(function(err){
     userPrompt();
 });
 
+var role;
+var manager;
+var managerId;
+var first;
+var last;
+
 function userPrompt(){
     inquirer.prompt([
         {
@@ -51,11 +57,12 @@ function userPrompt(){
 function allEmployees(){
     connection.query("SELECT * FROM employee", function(err, res){
         if (err){
-            console.log(err)
+            console.log(err);
         }
-        console.table(res)
+       else console.table(res);
     });
-};
+    connection.end();
+}
 
 function EmployeeByManagers(){
     connection.query(`SELECT e.first_name employeeFirst, e.last_name employeeLast,
@@ -85,19 +92,26 @@ function addEmployee(){
             type: "input",
             message: "last name?",
             name: "lastName"
+        },
+        {
+            type: "input",
+            message: "Manger's last name. Leave blank if not applicable",
+            name:"managerName"
         }
     ]).then(function(res){
-
-        connection.query("SELECT r_id, title FROM employee INNER JOIN role ON role_id = r_id", function(err, data){
-            if (err) throw err; 
-            // console.log(res.role);
-            for (let i =0; i < data.length; i++){
-                if(res.role === data[i].title){
-                    var role = data[i].r_id;
-                }
-            }
-            addEmp(role,res);
-        })
+        manager = res.managerName;
+        first = res.firstName;
+        last = res.lastName;
+        connection.query("SELECT r_id FROM role WHERE ?",{title: res.role}, function(err, data){
+            if (err) console.log(err);
+            else role = data[0].r_id;
+        });
+    }).then(function(){
+        connection.query(`SELECT emp_id FROM employee WHERE ?`,{last_name: manager}, function(err, data){
+            if (err) console.log(err);
+            else managerId = data[0].emp_id;
+            addEmp();
+        });
     })
 };
 
@@ -113,13 +127,16 @@ function addEmployee(){
 //     })
 // }
 
-function addEmp(role,res){
+function addEmp(){
 
-    connection.query("INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)", 
-    [res.firstName, res.lastName, role],
+    connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", 
+    [first, last, role, managerId],
     function(err){
         if (err) throw err;
-        console.log("successfully added employee!")
+        else {
+            console.log("successfully added employee!");
+            userPrompt();
+    }
     });
 };
 
