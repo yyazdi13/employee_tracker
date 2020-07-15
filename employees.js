@@ -116,18 +116,6 @@ function addEmployee(){
     })
 };
 
-// function findDepartment(role,res){
-//     connection.query("SELECT r_id, name, department_id FROM role INNER JOIN department ON department_id = dep_id WHERE ?",
-//     {
-//         r_id: role
-//     },
-//     function(err,data){
-//         if (err) throw err;
-//         console.log(data[0].department_id)
-//         addEmp(role,res);
-//     })
-// }
-
 function addEmp(){
 
     connection.query("INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)", 
