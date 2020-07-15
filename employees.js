@@ -185,7 +185,10 @@ function updateEmployee(){
                 first_name: response.first
             }
         ], function(err){
-            if (err){console.log(err);}
+            if (err){
+                console.log(err);
+            }
+            else userPrompt();
         });
     });
 };
